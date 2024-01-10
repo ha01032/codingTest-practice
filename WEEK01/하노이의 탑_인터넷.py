@@ -1,3 +1,4 @@
+#내가 인터넷 참조해서 구현한것..
 answer = []
 def dfs(n, x, y):
     global answer
@@ -11,9 +12,7 @@ def solution(n):
     dfs(n, 1, 3)
     return answer
 
-
-
-
+#인터넷..
 def solution(n):
     answer = []
     def dfs(n, src, tgt, inter):
