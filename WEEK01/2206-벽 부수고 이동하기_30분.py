@@ -1,3 +1,6 @@
+'''
+벽을 만날때만 부수는 형태로 바꿔야함..(시간복잡도)
+'''
 import sys
 input = sys.stdin.readline
 from collections import deque
@@ -5,45 +8,40 @@ from collections import deque
 N, M = map(int,input().strip().split())
 
 MAP = []
-WALL = []
 
 for y in range(N):
-    MAP.append(list(map(int, input().strip().split())))
-    for x in range(M):
-        if MAP[y][x] == 1: WALL.append((y,x))
+    MAP.append(list(map(int,input().strip())))
 
+#bfs 준비
+dy = [1,-1,0,0]
+dx = [0,0,1,-1]
+def inMAP(y,x): return 0<=y<N and 0<=x<M
 
+#bfs 초기화
+dq = deque([])
+time = [[[0]*2 for _ in range(M)] for _ in range(N)]
+dq.append((0,0,0))
+time[0][0][0] = 1
 arrive = False
-minTime = N*M
-#하나씩 벽 부수기
-for y,x in WALL:
-    WALL[y][x] = 0
-    
-    #BFS 준비..
-    dq = deque([])
-    
-    time = [[0]*M for _ in range(N)]
-    dy = [1,-1,0,0]
-    dx = [0,0,1,-1]
-    def inMAP(y,x): return 0<=y<N and 0<=x<M
 
-    dq.append((0,0))
-    time[0][0] = 1
-
-    while dq:
-        currY, currX = dq.popleft()
-        currTime = time[currY][currX]
-
-        for i in range(4):
-            nextY = currY + dy[i]
-            nextX = currX + dx[i]
-            if inMAP(nextY, nextX) and MAP[nextY][nextX] != 1:
-                if not time[nextY][nextX]:
-                    if nextY == N-1 and nextX == M-1:
-                        arrive = True
-                        if minTime > currTime+1: minTime = currTime+1
-                        break
-                    time[nextY][nextX] = currTime + 1
-                    dq.append((nextY, nextX))
-    WALL[y][x] = 1
-print(minTime)
+#bfs 시작
+while dq:
+    y,x,c = dq.popleft()
+    currTime = time[y][x][c]
+    if y==N-1 and x==M-1:
+        print(currTime)
+        arrive = True
+        break
+    for i in range(4):
+        nextY = y+dy[i]
+        nextX = x+dx[i]
+        if inMAP(nextY, nextX) and not time[nextY][nextX][c]:
+            #만약 벽인데, 아직 벽 안부쉈으면
+            if MAP[nextY][nextX] == 1 and not c and not time[nextY][nextX][1]:
+                dq.append((nextY, nextX, 1))
+                time[nextY][nextX][1] = currTime+1
+            #벽아니고 지나갈때
+            if MAP[nextY][nextX] == 0:
+                dq.append((nextY, nextX, c))
+                time[nextY][nextX][c] = currTime+1
+if not arrive: print(-1)
